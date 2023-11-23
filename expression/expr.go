@@ -48,8 +48,10 @@ func (ce *CELEvaluate) ValueTransfer(a any) ref.Val {
 
 // DeclareVariable 向CEL环境增加变量的捷径方法
 func (ce *CELEvaluate) DeclareVariable(name string, a any) (*cel.Type, error) {
+	var ct *cel.Type
+	var ok bool
 	ta := reflect.TypeOf(a)
-	if ct, ok := ce.TypeTransfer(ta); !ok {
+	if ct, ok = ce.TypeTransfer(ta); !ok {
 		ce.AddEnvOptions(cel.Types(a))
 		parts := strings.Split(ta.String(), ".")
 		n := parts[len(parts)-1]
@@ -62,11 +64,9 @@ func (ce *CELEvaluate) DeclareVariable(name string, a any) (*cel.Type, error) {
 			return nil, err
 		}
 		ce.registeredTypes[ta.String()] = ct
-		ce.AddEnvOptions(cel.Variable(name, ct))
-		return ct, nil
-	} else {
-		return ct, nil
 	}
+	ce.AddEnvOptions(cel.Variable(name, ct))
+	return ct, nil
 }
 
 // AddFunction 向CEL环境增加函数的捷径方法

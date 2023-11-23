@@ -146,8 +146,8 @@ func (e *Evaluate) NewClass(name string, source any, vm reflect.Value) (err erro
 	return e.NewFunction("new"+name, vm)
 }
 
-func (e *Evaluate) NewFunction(name string, vm reflect.Value) error {
-	overload, err := e.r.NewMethod(name, vm)
+func (e *Evaluate) NewFunction(name string, m any) error {
+	overload, err := e.r.NewMethod(name, m)
 	if err != nil {
 		return err
 	}

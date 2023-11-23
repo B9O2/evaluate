@@ -2,7 +2,6 @@ package evaluate
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 )
 
@@ -17,13 +16,21 @@ func TestNewEvaluate(t *testing.T) {
 		panic(err)
 	}
 
-	err = e.NewFunction("print", reflect.ValueOf(Print))
+	err = e.DeclareVariable("str", "")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = e.NewFunction("print", Print)
 	if err != nil {
 		panic(err)
 		return
 	}
 
-	eval, err := e.Eval(`print("hello")`, map[string]any{})
+	eval, err := e.Eval(`print(str)`, map[string]any{
+		"str": "hello world!",
+	})
 	if err != nil {
 		panic(err)
 		return
