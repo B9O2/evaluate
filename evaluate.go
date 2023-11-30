@@ -96,7 +96,11 @@ func (t *Transfer) ToMethod(method rTypes.Method) (rTypes.ExtendMethod, error) {
 }
 
 func (t *Transfer) ToObject(a any) (rTypes.ExtendObject, error) {
-	return t.ce.ValueTransfer(a), nil
+	if c, ok := a.(*rTypes.Class); ok {
+		return t.ce.ValueTransfer(c.Raw()), nil
+	} else {
+		return t.ce.ValueTransfer(a), nil
+	}
 }
 
 func (t *Transfer) ToValue(obj rTypes.ExtendObject) (any, error) {
