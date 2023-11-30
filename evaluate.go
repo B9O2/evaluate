@@ -10,7 +10,6 @@ import (
 	"github.com/google/cel-go/common/decls"
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
-	"reflect"
 )
 
 // Transfer 转换器的各个方法实现了转换的具体细节。
@@ -140,12 +139,12 @@ func (e *Evaluate) Eval(expr string, args map[string]any) (any, error) {
 	return e.r.ObjectTransfer(ret, nil)
 }
 
-func (e *Evaluate) NewClass(name string, source any, vm reflect.Value) (err error) {
+func (e *Evaluate) NewClass(name string, source any, m any) (err error) {
 	_, err = e.r.NewClass(name, source)
 	if err != nil {
 		return err
 	}
-	return e.NewFunction("new"+name, vm)
+	return e.NewFunction("new"+name, m)
 }
 
 func (e *Evaluate) NewFunction(name string, m any) error {
