@@ -107,6 +107,8 @@ func (t *Transfer) ToValue(obj rTypes.ExtendObject) (any, error) {
 		return o.Value().(int64), nil
 	case "string":
 		return o.Value().(string), nil
+	case "bool":
+		return o.Value().(bool), nil
 	default:
 		return o.Value(), nil
 	}
@@ -118,13 +120,13 @@ func NewTransfer(ce *expression.CELEvaluate) *Transfer {
 	}
 }
 
-// Evaluate Comal表达式的评估执行器，支持结构体与函数自动映射
+// Evaluate 表达式的评估执行器，支持结构体与函数自动映射
 type Evaluate struct {
 	ce *expression.CELEvaluate
 	r  *raev.Raev
 }
 
-// DeclareVariable
+// DeclareVariable 声明变量
 func (e *Evaluate) DeclareVariable(name string, a any) error {
 	_, err := e.ce.DeclareVariable(name, a)
 	return err
