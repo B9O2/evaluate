@@ -4,12 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/B9O2/evaluate/expression"
+	"github.com/B9O2/evaluate/middlewares"
 	"github.com/B9O2/raev"
 	rTypes "github.com/B9O2/raev/types"
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/common/decls"
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
+	"reflect"
 )
 
 // Transfer 转换器的各个方法实现了转换的具体细节。
@@ -144,8 +146,22 @@ func (e *Evaluate) Eval(expr string, args map[string]any) (any, error) {
 	return e.r.ObjectTransfer(ret, nil)
 }
 
-func (e *Evaluate) NewClass(name string, source any, m any) (err error) {
-	_, err = e.r.NewClass(name, source)
+func (e *Evaluate) NewClass(name string, source any, m any, extraMethods map[string]any) (err error) {
+
+	var ms []rTypes.ClassMiddleware
+	extraRawMethods := map[string]rTypes.Method{}
+	if extraMethods != nil {
+		for methodName, method := range extraMethods {
+			rawMethod, err := e.r.NewRawMethod(methodName, reflect.ValueOf(method))
+			if err != nil {
+				return err
+			}
+			extraRawMethods[methodName] = rawMethod
+		}
+		ms = append(ms, middlewares.NewExtraMethods(extraRawMethods))
+	}
+
+	_, err = e.r.NewClass(name, source, ms...)
 	if err != nil {
 		return err
 	}
