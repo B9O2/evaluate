@@ -51,7 +51,7 @@ func (t *Transfer) methodTransfer(instance *cel.Type, m rTypes.Method) (decls.Fu
 
 	if instance != nil {
 		overload = cel.MemberOverload(
-			CamelCaseToUnderscore(m.Name()),
+			m.Name(),
 			append([]*cel.Type{instance}, argTypes...),
 			retType,
 			cel.FunctionBinding(f),
@@ -85,7 +85,7 @@ func (t *Transfer) ToClass(name string, c *rTypes.Class) (_ rTypes.ExtendClass, 
 		if err != nil {
 			return false
 		}
-		t.ce.AddFunction(method.Name(), f)
+		t.ce.AddFunction(CamelCaseToUnderscore(method.Name()), f)
 		return true
 	})
 
