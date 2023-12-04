@@ -36,6 +36,8 @@ func (ce *CELEvaluate) TypeTransfer(t reflect.Type) (*cel.Type, bool) {
 		ct = types.StringType
 	case "error":
 		ct = types.ErrorType
+	case "[]uint8":
+		ct = types.BytesType
 	default:
 		ct, ok = ce.registeredTypes[t.String()]
 	}

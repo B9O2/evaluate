@@ -48,9 +48,10 @@ func (t *Transfer) methodTransfer(instance *cel.Type, m rTypes.Method) (decls.Fu
 		}
 		return nil
 	}
+
 	if instance != nil {
 		overload = cel.MemberOverload(
-			m.Name(),
+			CamelCaseToUnderscore(m.Name()),
 			append([]*cel.Type{instance}, argTypes...),
 			retType,
 			cel.FunctionBinding(f),
