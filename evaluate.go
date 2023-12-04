@@ -156,6 +156,10 @@ func (e *Evaluate) NewClass(name string, source any, m any, extraMethods map[str
 			if err != nil {
 				return err
 			}
+			params := rawMethod.Params()
+			if len(params) > 0 {
+				rawMethod.SetParameters(params[1:])
+			}
 			extraRawMethods[methodName] = rawMethod
 		}
 		ms = append(ms, middlewares.NewExtraMethods(extraRawMethods))
