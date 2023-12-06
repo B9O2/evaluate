@@ -28,7 +28,7 @@ func (ce *CELEvaluate) TypeTransfer(t reflect.Type) (*cel.Type, bool) {
 	var ct *cel.Type
 	ok := true
 	switch t.String() {
-	case "int":
+	case "int", "int64":
 		ct = types.IntType
 	case "bool":
 		ct = types.BoolType
@@ -38,6 +38,10 @@ func (ce *CELEvaluate) TypeTransfer(t reflect.Type) (*cel.Type, bool) {
 		ct = types.ErrorType
 	case "[]uint8":
 		ct = types.BytesType
+	case "interface {}":
+		ct = types.AnyType
+	case "map[string]string":
+		ct = types.NewMapType(types.StringType, types.StringType)
 	default:
 		ct, ok = ce.registeredTypes[t.String()]
 	}
@@ -106,11 +110,7 @@ func NewCELEvaluate(container string) *CELEvaluate {
 		baseEnvOptions: []cel.EnvOption{
 			cel.Container(container),
 		},
-		registeredTypes: map[string]*cel.Type{
-			"string": cel.StringType,
-			"int":    cel.IntType,
-			"bool":   cel.BoolType,
-		},
+		registeredTypes: map[string]*cel.Type{},
 	}
 	return ce
 }

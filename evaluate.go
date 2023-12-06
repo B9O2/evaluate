@@ -19,7 +19,7 @@ type Transfer struct {
 	ce *expression.CELEvaluate
 }
 
-func (t *Transfer) methodTransfer(instance *cel.Type, m rTypes.Method) (decls.FunctionOpt, error) {
+func (t *Transfer) MethodTransfer(instance *cel.Type, m rTypes.Method) (decls.FunctionOpt, error) {
 	var argTypes []*cel.Type
 	var retType *cel.Type
 	for _, param := range m.Params() {
@@ -83,7 +83,7 @@ func (t *Transfer) ToClass(name string, c *rTypes.Class) (_ rTypes.ExtendClass, 
 
 	c.RangeMethods(func(method rTypes.Method) bool {
 		var f decls.FunctionOpt
-		f, err := t.methodTransfer(ct, method)
+		f, err := t.MethodTransfer(ct, method)
 		if err != nil {
 			return false
 		}
@@ -95,7 +95,7 @@ func (t *Transfer) ToClass(name string, c *rTypes.Class) (_ rTypes.ExtendClass, 
 }
 
 func (t *Transfer) ToMethod(method rTypes.Method) (rTypes.ExtendMethod, error) {
-	return t.methodTransfer(nil, method)
+	return t.MethodTransfer(nil, method)
 }
 
 func (t *Transfer) ToObject(a any) (rTypes.ExtendObject, error) {
@@ -129,6 +129,7 @@ func NewTransfer(ce *expression.CELEvaluate) *Transfer {
 // Evaluate 表达式的评估执行器，支持结构体与函数自动映射
 type Evaluate struct {
 	ce *expression.CELEvaluate
+	t  *Transfer
 	r  *raev.Raev
 }
 
@@ -156,10 +157,7 @@ func (e *Evaluate) NewClass(name string, source any, m any, extraMethods map[str
 			if err != nil {
 				return err
 			}
-			params := rawMethod.Params()
-			if len(params) > 0 {
-				rawMethod.SetParameters(params[1:])
-			}
+			IgnoreInstanceParam(&rawMethod)
 			extraRawMethods[methodName] = rawMethod
 		}
 		ms = append(ms, middlewares.NewExtraMethods(extraRawMethods))
@@ -169,7 +167,25 @@ func (e *Evaluate) NewClass(name string, source any, m any, extraMethods map[str
 	if err != nil {
 		return err
 	}
-	return e.NewFunction("new"+name, m)
+
+	if m != nil {
+		return e.NewFunction("new"+name, m)
+	}
+	return nil
+}
+
+func (e *Evaluate) NewMemberFunction(celType *cel.Type, name string, m any) error {
+	rawMethod, err := e.r.NewRawMethod(name, reflect.ValueOf(m))
+	if err != nil {
+		return err
+	}
+	IgnoreInstanceParam(&rawMethod)
+	funcOpt, err := e.t.MethodTransfer(celType, rawMethod)
+	if err != nil {
+		return err
+	}
+	e.ce.AddFunction(name, funcOpt)
+	return nil
 }
 
 func (e *Evaluate) NewFunction(name string, m any) error {
@@ -183,13 +199,15 @@ func (e *Evaluate) NewFunction(name string, m any) error {
 
 func NewEvaluate(container string) (*Evaluate, error) {
 	ce := expression.NewCELEvaluate(container)
+	t := NewTransfer(ce)
 	e := &Evaluate{
 		ce: ce,
+		t:  t,
 	}
 
 	e.r = raev.NewRaev(
 		decls.NewVariable("null", types.NewObjectType("expr.Null")),
-		NewTransfer(ce),
+		t,
 	)
 
 	return e, nil

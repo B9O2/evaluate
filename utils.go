@@ -1,6 +1,9 @@
 package evaluate
 
-import "unicode"
+import (
+	"github.com/B9O2/raev/types"
+	"unicode"
+)
 
 // CamelCaseToUnderscore 驼峰单词转下划线单词
 func CamelCaseToUnderscore(s string) string {
@@ -24,5 +27,12 @@ func CamelCaseToUnderscore(s string) string {
 		return to
 	} else {
 		return word
+	}
+}
+
+func IgnoreInstanceParam(method *types.Method) {
+	params := method.Params()
+	if len(params) > 0 {
+		method.SetParameters(params[1:])
 	}
 }
