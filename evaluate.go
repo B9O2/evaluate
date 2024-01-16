@@ -12,6 +12,7 @@ import (
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
 	"reflect"
+	"strings"
 )
 
 // Transfer 转换器的各个方法实现了转换的具体细节。
@@ -52,8 +53,9 @@ func (t *Transfer) MethodTransfer(instance *cel.Type, m rTypes.Method) (decls.Fu
 	}
 
 	if instance != nil {
+		name := strings.ReplaceAll(instance.TypeName()+"_"+m.Name(), ".", "_")
 		overload = cel.MemberOverload(
-			m.Name(),
+			name,
 			append([]*cel.Type{instance}, argTypes...),
 			retType,
 			cel.FunctionBinding(f),
