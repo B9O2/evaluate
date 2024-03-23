@@ -3,6 +3,9 @@ package evaluate
 import (
 	"errors"
 	"fmt"
+	"reflect"
+	"strings"
+
 	"github.com/B9O2/evaluate/expression"
 	"github.com/B9O2/evaluate/middlewares"
 	"github.com/B9O2/raev"
@@ -11,8 +14,6 @@ import (
 	"github.com/google/cel-go/common/decls"
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
-	"reflect"
-	"strings"
 )
 
 // Transfer 转换器的各个方法实现了转换的具体细节。

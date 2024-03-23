@@ -2,7 +2,7 @@ module github.com/B9O2/evaluate
 
 go 1.20
 
-require github.com/google/cel-go v0.18.2
+require github.com/google/cel-go v0.20.1
 
 require (
 	github.com/B9O2/raev v0.1.5 // indirect
