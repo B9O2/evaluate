@@ -30,7 +30,11 @@ func (e *Evaluate) Eval(expr string, args map[string]any) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	return e.r.ObjectTransfer(ret, nil)
+	r, err := e.r.ObjectTransfer(ret, nil)
+	if err != nil {
+		return nil, err
+	}
+	return r.Interface(), nil
 }
 
 func (e *Evaluate) NewClass(name string, source any, m any, extraMethods map[string]any) (err error) {
