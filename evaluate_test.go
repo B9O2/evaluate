@@ -10,6 +10,10 @@ func Print(a string) string {
 	return "world!"
 }
 
+func SliceHere() []string {
+	return []string{"ok"}
+}
+
 func TestNewEvaluate(t *testing.T) {
 	e, err := NewEvaluate("expr")
 	if err != nil {
@@ -25,15 +29,18 @@ func TestNewEvaluate(t *testing.T) {
 	err = e.NewFunction("print", Print)
 	if err != nil {
 		panic(err)
-		return
 	}
 
-	eval, err := e.Eval(`print(str)`, map[string]any{
+	err = e.NewFunction("slice", SliceHere)
+	if err != nil {
+		panic(err)
+	}
+
+	eval, err := e.Eval(`print()`, map[string]any{
 		"str": "hello world!",
 	})
 	if err != nil {
 		panic(err)
-		return
 	}
 	fmt.Println(eval)
 
