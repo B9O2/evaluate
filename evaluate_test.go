@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// 必须具有返回值，可以返回多个值，最后返回值可以为error
 func Print(a string) string {
 	fmt.Println(a)
 	return "world!"
@@ -36,11 +37,11 @@ func TestNewEvaluate(t *testing.T) {
 		panic(err)
 	}
 
-	eval, err := e.Eval(`print()`, map[string]any{
+	eval, err := e.Eval(`print("hello")`, map[string]any{
 		"str": "hello world!",
 	})
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 	fmt.Println(eval)
 

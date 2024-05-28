@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/B9O2/evaluate/expression"
+	"github.com/B9O2/raev"
 	rTypes "github.com/B9O2/raev/types"
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/common/decls"
@@ -15,6 +16,7 @@ import (
 
 // Transfer 转换器的各个方法实现了转换的具体细节。
 type Transfer struct {
+	*raev.BaseTransfer
 	ce *expression.CELEvaluate
 }
 
@@ -120,28 +122,9 @@ func (t *Transfer) ToValue(obj rTypes.ExtendObject) (any, error) {
 	}
 }
 
-func (t *Transfer) MakeSlice() rTypes.ExtendSlice {
-	return []any{}
-}
-
-func (t *Transfer) AppendSlice(l rTypes.ExtendSlice, obj rTypes.ExtendObject) rTypes.ExtendSlice {
-	slice := l.([]any)
-	slice = append(slice, obj)
-	return slice
-}
-
-func (t *Transfer) MakeMap() rTypes.ExtendMap {
-	return map[any]any{}
-}
-
-func (t *Transfer) SetMap(m rTypes.ExtendMap, k, v rTypes.ExtendObject) (rTypes.ExtendMap, error) {
-	r := m.(map[any]any)
-	r[k] = v
-	return r, nil
-}
-
 func NewTransfer(ce *expression.CELEvaluate) *Transfer {
 	return &Transfer{
-		ce: ce,
+		BaseTransfer: &raev.BaseTransfer{},
+		ce:           ce,
 	}
 }
