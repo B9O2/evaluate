@@ -2,7 +2,7 @@ package evaluate
 
 import (
 	"bytes"
-	"errors"
+	"fmt"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -49,36 +49,38 @@ func (e *Evaluate) EvalWithDefault(expr string, args map[string]any, defaultValu
 		return defaultValue, nil
 	}
 
-	expectType := reflect.TypeOf(defaultValue)
-
 	res, err := e.Eval(expr, args)
 	if err != nil {
 		return nil, err
 	}
-	value := res.(reflect.Value)
-	if value.Type().String() == expectType.String() {
-		return value.Interface(), nil
-	} else {
-		//部分类型间可以自动转换
-		switch expectType.String() {
-		case "string":
-			switch v := value.Interface().(type) {
-			case int64:
-				return strconv.FormatInt(v, 10), nil
-			case []uint8:
-				return string(v), nil
-			}
 
-		case "[]uint8":
-			switch v := value.Interface().(type) {
-			case string:
-				return []uint8(v), nil
-			case int64:
-				return []uint8(strconv.FormatInt(v, 10)), nil
-			}
+	//部分类型间可以自动转换
+	switch v := defaultValue.(type) {
+	case string:
+		switch res := res.(type) {
+		case int64:
+			return strconv.FormatInt(res, 10), nil
+		case []uint8:
+			return string(res), nil
+		case string:
+			return res, nil
 		}
-		return value.Interface(), errors.New("the expression '" + string(expr) + "' should return " + expectType.String() + "<type>")
+
+	case []byte:
+		switch res := res.(type) {
+		case string:
+			return []uint8(res), nil
+		case int64:
+			return []uint8(strconv.FormatInt(res, 10)), nil
+		case []byte:
+			return res, nil
+		}
+	default:
+		if reflect.TypeOf(v).String() == reflect.TypeOf(res).String() {
+			return res, nil
+		}
 	}
+	return res, fmt.Errorf("the expression '%s' should return %T<type>", expr, defaultValue)
 }
 
 // EvalWithTemplate 寻找模板表达式并执行
