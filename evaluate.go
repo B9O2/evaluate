@@ -99,7 +99,7 @@ func (e *Evaluate) EvalWithTemplate(src []byte, args map[string]any) (_ []byte, 
 	return res, err
 }
 
-func (e *Evaluate) NewClass(name string, source any, m any, extraMethods map[string]any) (err error) {
+func (e *Evaluate) NewClass(name string, source any, extraMethods map[string]any) (err error) {
 
 	var ms []rTypes.ClassMiddleware
 	extraRawMethods := map[string]rTypes.Method{}
@@ -118,10 +118,6 @@ func (e *Evaluate) NewClass(name string, source any, m any, extraMethods map[str
 	_, err = e.r.NewClass(name, source, ms...)
 	if err != nil {
 		return err
-	}
-
-	if m != nil {
-		return e.NewFunction("new"+name, m)
 	}
 	return nil
 }
