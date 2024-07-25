@@ -47,7 +47,9 @@ func (t *Transfer) MethodTransfer(instance *cel.Type, m rTypes.Method) (decls.Fu
 			return types.NewErr(err.Error())
 		}
 		if len(rets) > 0 {
-			return rets[0].(ref.Val)
+			if rets[0] != nil {
+				return rets[0].(ref.Val)
+			}
 		}
 		return nil
 	}
@@ -110,13 +112,15 @@ func (t *Transfer) ToObject(a any) (rTypes.ExtendObject, error) {
 
 func (t *Transfer) ToValue(obj rTypes.ExtendObject) (any, error) {
 	o := obj.(ref.Val)
-	switch name := o.Type().TypeName(); name {
-	case "int":
+	switch o.Type() {
+	case types.IntType:
 		return o.Value().(int64), nil
-	case "string":
+	case types.StringType:
 		return o.Value().(string), nil
-	case "bool":
+	case types.BoolType:
 		return o.Value().(bool), nil
+	case types.NullType:
+		return nil, nil
 	default:
 		return o.Value(), nil
 	}

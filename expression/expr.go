@@ -3,12 +3,13 @@ package expression
 import (
 	"errors"
 	"fmt"
+	"reflect"
+	"strings"
+
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/common/decls"
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
-	"reflect"
-	"strings"
 )
 
 // CELEvaluate CEL评估与执行器
@@ -56,6 +57,10 @@ func (ce *CELEvaluate) ValueTransfer(a any) ref.Val {
 func (ce *CELEvaluate) DeclareVariable(name string, a any) (*cel.Type, error) {
 	var ct *cel.Type
 	var ok bool
+	if a == nil {
+		ce.AddEnvOptions(cel.Variable(name, types.NullType))
+		return types.NullType, nil
+	}
 	ta := reflect.TypeOf(a)
 	if ct, ok = ce.TypeTransfer(ta); !ok {
 		ce.AddEnvOptions(cel.Types(a))

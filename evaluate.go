@@ -35,7 +35,10 @@ func (e *Evaluate) Eval(expr string, args map[string]any) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	r, err := e.r.ObjectTransfer(ret, nil)
+	if ret == nil {
+		return nil, nil
+	}
+	r, err := e.r.ObjectTransfer(ret)
 	if err != nil {
 		return nil, err
 	}
